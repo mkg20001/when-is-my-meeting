@@ -3,7 +3,7 @@
     "@babel/core": "^7.6.0",
     "@babel/plugin-transform-runtime": "^7.6.0"
   },
-  "name": "when-is-my-meeting.tk",
+  "name": "when-is-my-meeting",
   "version": "0.0.1",
   "description": "Timezones are tough. When is my meeting gives you an easy calculator.",
   "main": "index.js",
