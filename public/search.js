@@ -39,6 +39,7 @@ const translatedNames = {
 function createHighlighted (str, hi) {
   str = str.split('')
   hi.reverse().forEach(([start, end]) => {
+    end++
     str = str.slice(0, start).concat(`<span class="hi">${str.slice(start, end).join('')}</span>`).concat(str.slice(end))
   })
 
@@ -83,3 +84,4 @@ function makeSearch (id) {
 }
 
 makeSearch('srclocation')
+makeSearch('dstlocation')
