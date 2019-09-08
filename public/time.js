@@ -8,13 +8,15 @@ const debug = console.log.bind(console)
 function hookField (id, allowKey) {
   id = `#${id}`
 
-  $(id).on('keydown', (e) => {
+  $(id).on('keypress', (e) => {
     let val = $(id).val()
 
     const pos = $(id).caret()
 
-    if (e.originalEvent.keyCode >= 32 && e.originalEvent.keyCode <= 127) {
-      debug(allowKey(val, pos, val[pos - 1], e.originalEvent.key), {val, pos, lastKey: val[pos - 1], key: e.originalEvent.key})
+    debug(e)
+    if (e.which) {
+      const key = String.fromCharCode(e.originalEvent.charCode)
+      debug(allowKey(val, pos, val[pos - 1], key), {val, pos, lastKey: val[pos - 1], key})
       const {allow, prevChar, curChar, nextChar} = allowKey(val, pos, val[pos - 1], e.originalEvent.key)
 
       e.preventDefault()
@@ -25,10 +27,16 @@ function hookField (id, allowKey) {
       val = val.split('')
       debug(val)
 
+      /* let isNextUserChar = val[pos + 1]
+
+      if (typeof isNextUserChar === 'string') { // make space for current entry
+        val = val.slice(0, pos).concat([null]).concat(val.slice(pos))
+      } */
+
       if (prevChar) {
         val[pos - 1] = prevChar
       }
-      val[pos] = curChar || e.originalEvent.key
+      val[pos] = curChar || key
       if (nextChar) {
         val[pos + 1] = nextChar
         $(id).caret(pos + 1)
@@ -41,7 +49,7 @@ function hookField (id, allowKey) {
 }
 
 // TODO: handle backspace
-hookField('time', (val, pos, lastKey, key, apVal) => { // eslint-disable-line complexity
+hookField('time', (val, pos, lastKey, key) => { // eslint-disable-line complexity
   /* Time */
 
   switch (pos) {
@@ -71,7 +79,7 @@ hookField('time', (val, pos, lastKey, key, apVal) => { // eslint-disable-line co
     }
     // 12:
     case 2: {
-      return {allow: true, nextChar: ':'}
+      return {allow: key === ':'}
     }
     // 12:3
     case 3: { // this can either be a 0-5 for 59 for ex, or 6-9 for 09
