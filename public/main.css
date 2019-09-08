@@ -1,0 +1,58 @@
+body {
+  font-family: sans-serif;
+  background: rgb(70, 221, 33);
+  color: white;
+}
+
+/* Form */
+
+.input-wrapper {
+}
+
+.input-wrapper .label {
+  font-size: 2em;
+  font-weight: bold;
+  display: block;
+  margin-bottom: .5em;
+  margin-top: .5em;
+}
+
+.entry-box {
+  background: rgb(79, 184, 42);
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  border: none;
+}
+
+/* Main */
+
+.main {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2em;
+  text-align: center;
+}
+
+.main-header {
+  font-size: 4em;
+}
+
+.main-subheader {
+  font-size: 2.5em;
+  color: #f8f8f8;
+  font-weight: 400;
+}
+
+.main-box {
+  font-size: 5em;
+  min-width: 128px;
+  max-width: 512px;
+}
+
+.sub-box {
+  font-size: 2em;
+  min-width: 128px;
+  max-width: 512px;
+  padding: 1em 0;
+}
