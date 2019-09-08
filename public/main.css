@@ -56,3 +56,33 @@ body {
   max-width: 512px;
   padding: 1em 0;
 }
+
+/* Search */
+
+.hi {
+  background: rgba(255, 255, 0, 0.3);
+}
+
+.search-results {
+  min-width: 128px;
+  max-width: 512px;
+  background: rgba(80, 80, 80, .4);
+  margin: auto;
+  position: relative;
+  top: -36px;
+
+  max-height: 512px;
+  overflow-y: scroll;
+}
+
+.search-result {
+  text-align: left;
+  padding: .25em;
+  padding-left: 1em;
+  margin-right: 1em;
+  background: rgba(80, 80, 80, .4);
+}
+
+.search-result:hover {
+  background: rgb(112, 214, 57);
+}
