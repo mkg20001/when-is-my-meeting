@@ -3,6 +3,8 @@
 const $ = window.jQuery = require('jquery')
 require('@accursoft/jquery-caret')
 
+const debug = console.log.bind(console)
+
 function hookField (id, allowKey) {
   id = `#${id}`
 
@@ -12,6 +14,7 @@ function hookField (id, allowKey) {
     const pos = $(id).caret()
 
     if (e.originalEvent.keyCode >= 32 && e.originalEvent.keyCode <= 127) {
+      debug(allowKey(val, pos, val[pos - 1], e.originalEvent.key), {val, pos, lastKey: val[pos - 1], key: e.originalEvent.key})
       const {allow, prevChar, curChar, nextChar} = allowKey(val, pos, val[pos - 1], e.originalEvent.key)
 
       e.preventDefault()
@@ -20,6 +23,7 @@ function hookField (id, allowKey) {
       }
 
       val = val.split('')
+      debug(val)
 
       if (prevChar) {
         val[pos - 1] = prevChar
@@ -29,6 +33,7 @@ function hookField (id, allowKey) {
         val[pos + 1] = nextChar
         $(id).caret(pos + 1)
       }
+      debug(val)
 
       $(id).val(val.join(''))
     }
@@ -97,8 +102,8 @@ hookField('time', (val, pos, lastKey, key, apVal) => { // eslint-disable-line co
     case 7: { // this can be an m
       return {allow: key.match(/^[m]$/i)}
     }
-    default: {
-      console.error('Out of bounds')
+    default: { // out of bounds
+      return {allow: undefined}
     }
   }
 })
