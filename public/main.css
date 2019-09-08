@@ -71,18 +71,28 @@ body {
   position: relative;
   top: -36px;
 
-  max-height: 512px;
+  max-height: 256px;
   overflow-y: scroll;
+
+  scrollbar-color: rgba(160, 160, 160, .6) rgba(80, 80, 80, .6);
+  scrollbar-width: auto;
 }
 
 .search-result {
   text-align: left;
   padding: .25em;
   padding-left: 1em;
-  margin-right: 1em;
   background: rgba(80, 80, 80, .4);
 }
 
 .search-result:hover {
   background: rgb(112, 214, 57);
+}
+.search-result > * {
+  margin: 0 !important;
+}
+
+.search-match {
+  /* margin-right: 8px !important; */
+  display: block;
 }

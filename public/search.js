@@ -52,20 +52,34 @@ function makeSearch (id) {
 
   $(id).after(el)
 
-  // $(id).on('change', () => {
-  const val = $(id).val()
+  const doSearch = () => {
+    const val = $(id).val()
 
-  const res = search.search(val)
+    const res = search.search(val)
 
-  el.html(res.map(r => `
-      <div class="search-result">
-        <h3><b>${r.item.timezone}</b></h3>
-        ${r.matches.map(({key, value, indices}) => `<b>${translatedNames[key]}: ${createHighlighted(value, indices)}`).join('')}
-      </div>
-      `).join(''))
+    if (val && val.length >= 2) {
+      el.html(res.map(r => `
+          <div class="search-result">
+            <h3><b>${r.item.timezone}</b></h3>
+            ${r.matches.map(({key, value, indices}) => `<b class="search-match">${translatedNames[key]}: ${createHighlighted(value, indices)}</b>`).join('')}
+          </div>
+          `).join(''))
+    } else {
+      el.html('')
+    }
+  }
 
-  console.log(res)
-  // })
+  doSearch()
+
+  $(id).on('keypress', () => {
+    doSearch()
+  })
+  $(id).on('keyup', () => {
+    doSearch()
+  })
+  $(id).on('change', () => {
+    doSearch()
+  })
 }
 
 makeSearch('srclocation')
