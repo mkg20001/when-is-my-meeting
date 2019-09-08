@@ -17,14 +17,22 @@ function hookField (id, allowKey) {
 
     if (pos && e.originalEvent.code === 'Backspace') {
       e.preventDefault()
-      val[pos - 1] = '░' // remove current value
+      if (typeof val[pos] === 'string') {
+        val[pos - 1] = '░' // remove current value
+      } else {
+        delete val[pos - 1]
+      }
       $(id).val(val.join('')) // set value
       $(id).caret(pos - 1) // move caret one back
     }
 
     if (typeof val[pos + 1] === 'string' && e.originalEvent.code === 'Delete') { // if next thing is string and user presses delete, delete next char
       e.preventDefault()
-      val[pos] = '░' // remove current value
+      if (typeof val[pos + 1] === 'string') {
+        val[pos] = '░' // remove current value
+      } else {
+        delete val[pos]
+      }
       $(id).val(val.join('')) // set value
       $(id).caret(pos + 1) // move caret one back
     }
@@ -33,13 +41,13 @@ function hookField (id, allowKey) {
   $(id).on('keypress', (e) => {
     let val = $(id).val()
 
-    const pos = $(id).caret()
+    let pos = $(id).caret()
 
     debug(e)
     if (e.which) {
       const key = String.fromCharCode(e.originalEvent.charCode)
       debug(allowKey(val, pos, val[pos - 1], key), {val, pos, lastKey: val[pos - 1], key})
-      const {allow, prevChar, curChar, nextChar} = allowKey(val, pos, val[pos - 1], e.originalEvent.key)
+      const {allow, prevPrevChar, prevChar, curChar, nextChar} = allowKey(val, pos, val[pos - 1], e.originalEvent.key)
 
       e.preventDefault()
       if (!allow) {
@@ -55,17 +63,33 @@ function hookField (id, allowKey) {
         val = val.slice(0, pos).concat([null]).concat(val.slice(pos))
       } */
 
+      let offset = 1
+
+      if (prevPrevChar) {
+        if (pos - 2 < 0) {
+          pos++
+          val.unshift(prevPrevChar)
+        } else {
+          val[pos - 2] = prevPrevChar
+        }
+      }
       if (prevChar) {
-        val[pos - 1] = prevChar
+        if (pos - 1 < 0) {
+          pos++
+          val.unshift(prevChar)
+        } else {
+          val[pos - 1] = prevChar
+        }
       }
       val[pos] = curChar || key
       if (nextChar) {
         val[pos + 1] = nextChar
+        offset++
       }
       debug(val)
 
       $(id).val(val.join(''))
-      $(id).caret(pos + (nextChar ? 2 : 1))
+      $(id).caret(pos + offset)
     }
   })
 }
@@ -84,17 +108,15 @@ hookField('time', (val, pos, lastKey, key) => { // eslint-disable-line complexit
       if (key.match(/^[0-9]$/)) {
         let total = parseInt(lastKey + key, 10)
 
-        if (total > 23) {
-          if (total === 24) {
-            return {allow: true, prevChar: '0', curChar: '0', nextChar: ':'}
-          }
-
-          return {allow: false}
+        if (total === 24) {
+          return {allow: true, prevChar: '0', curChar: '0', nextChar: ':'}
+        } else if (total > 24) {
+          return {allow: true, prevPrevChar: '0', prevChar: lastKey, curChar: ':', nextChar: key}
         } else {
           return {allow: true, nextChar: ':'}
         }
-      } else if (key === ':') {
-        return {allow: true, prevChar: '0', curChar: lastKey, nextChar: key}
+      } else if (key === ':' && key === ' ') { // FEATURE: you can press space to set the middle sepeartor
+        return {allow: true, prevChar: '0', curChar: lastKey, nextChar: ':'}
       } else {
         return {allow: false}
       }
