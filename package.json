@@ -9,6 +9,7 @@
   "description": "Timezones are tough. When is my meeting gives you an easy calculator.",
   "dependencies": {
     "@accursoft/jquery-caret": "^1.3.7",
+    "acomp": "^0.1.3",
     "fuse.js": "^3.4.5",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
