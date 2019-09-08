@@ -8,6 +8,7 @@
   "description": "Timezones are tough. When is my meeting gives you an easy calculator.",
   "main": "index.js",
   "dependencies": {
+    "fuse.js": "^3.4.5",
     "jquery": "^3.4.1",
     "moment": "^2.24.0"
   },
