@@ -116,12 +116,12 @@ hookField('time', (val, pos, lastKey, key) => { // eslint-disable-line complexit
     }
     case 6: { // this can be an a or p
       if (key.match(/^[ap]$/i)) {
-        return {allow: true, nextChar: 'm'}
+        return {allow: true, curChar: key.toLowerCase(), nextChar: 'm'}
       }
       return {allow: false}
     }
     case 7: { // this can be an m
-      return {allow: key.match(/^[m]$/i)}
+      return {allow: key.match(/^[m]$/i), curChar: key.toLowerCase()}
     }
     default: { // out of bounds
       return {allow: undefined}
