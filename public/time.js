@@ -18,27 +18,49 @@ function hookField (id, allowKey) {
 }
 
 // TODO: handle backspace
-hookField('time', (val, lastKey, key, chVal) => {
+hookField('time', (val, lastKey, key, chVal) => { // eslint-disable-line complexity
   /* Time */
 
-  if (!val.length) {
-    return key.match(/^[0-2]$/)
-  }
-
-  if (val.length === 1) {
-    return key.match(/^[0-9:]$/)
-  }
-
-  if (val.length === 2 || val.length === 3 || val.length === 4) {
-    if (val.indexOf(':') === -1) {
-      return key.match(/^[:]$/)
-    } else if (lastKey === ':') {
-      if (val.length === 2) {
-        chVal('0' + val)
+  if (val.length < 5) {
+    if (key.indexOf(':') === -1) {
+      if (val.length === 2 && key !== ':') {
+        chVal(val + ':')
       }
-      return key.match(/^[0-5]$/)
-    } else {
-      return key.match(/^[0-9]$/)
+
+      if (val.length) {
+        if (key.match(/^[0-9]$/)) { // times like 93 are invalid
+          if (parseInt(lastKey, 10) > 2) { // eslint-disable-line
+            return false
+          }
+
+          // times like 23 are invalid as well, 24 as a special case gets set to 00
+          if (parseInt(lastKey + key, 10) > 23) { // eslint-disable-line
+            if (parseInt(lastKey + key, 10) === 24) { // eslint-disable-line
+              chVal('00:')
+            }
+            return false
+          }
+        }
+
+        return key.match(/^[0-9:]$/)
+      }
+
+      if (!val.length) {
+        return key.match(/^[0-9]$/)
+      }
+    }
+
+    if (val.length === 2 || val.length === 3 || val.length === 4) {
+      if (val.indexOf(':') === -1) {
+        return key.match(/^[:]$/)
+      } else if (lastKey === ':') {
+        if (val.length === 2) {
+          chVal('0' + val)
+        }
+        return key.match(/^[0-5]$/)
+      } else {
+        return key.match(/^[0-9]$/)
+      }
     }
   }
 
@@ -57,7 +79,7 @@ hookField('time', (val, lastKey, key, chVal) => {
       }
       return key.match(/^[m]$/i)
     } else if (lastKey === 'm') {
-
+      // do nothing
     }
   }
 })
