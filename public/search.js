@@ -46,6 +46,13 @@ function createHighlighted (str, hi) {
   return str.join('')
 }
 
+function searchResult ({id, res}) {
+  $(id).val(res)
+  $(id).parent().find('.search-results').html('')
+}
+
+window.SR = searchResult
+
 function makeSearch (id) {
   id = `#${id}`
 
@@ -60,10 +67,10 @@ function makeSearch (id) {
 
     if (val && val.length >= 2) {
       el.html(res.map(r => `
-          <div class="search-result">
+          <a href="#"><div onclick="SR(${JSON.stringify({id, res: r.item.timezone}).replace(/"/g, '\'')})" class="search-result">
             <h3><b>${r.item.timezone}</b></h3>
             ${r.matches.map(({key, value, indices}) => `<b class="search-match">${translatedNames[key]}: ${createHighlighted(value, indices)}</b>`).join('')}
-          </div>
+          </div></a>
           `).join(''))
     } else {
       el.html('')

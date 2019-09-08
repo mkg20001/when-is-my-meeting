@@ -83,9 +83,12 @@ body {
   padding: .25em;
   padding-left: 1em;
   background: rgba(80, 80, 80, .4);
+
+  color: white;
+  text-decoration: none !important;
 }
 
-.search-result:hover {
+.search-result:hover, .search-result:active, .search-result:focus, .search-result:focus-within {
   background: rgb(112, 214, 57);
 }
 .search-result > * {
