@@ -39,57 +39,58 @@ function hookField (id, allowKey) {
   })
 
   $(id).on('keypress', (e) => {
-    let val = $(id).val()
+    let val = $(id).val().split('')
 
     let pos = $(id).caret()
 
     debug(e)
+
+    e.preventDefault()
+
     if (e.which) {
-      const key = String.fromCharCode(e.originalEvent.charCode)
-      debug(allowKey(val, pos, val[pos - 1], key), {val, pos, lastKey: val[pos - 1], key})
-      const {allow, prevPrevChar, prevChar, curChar, nextChar} = allowKey(val, pos, val[pos - 1], e.originalEvent.key)
+      let stack = [String.fromCharCode(e.originalEvent.charCode)]
 
-      e.preventDefault()
-      if (!allow) {
-        return
-      }
+      while (stack.length) {
+        debug(stack)
+        let key = stack.shift()
 
-      val = val.split('')
-      debug(val)
+        const res = allowKey(val, pos, val[pos - 1], key)
+        debug(res, {val, pos, lastKey: val[pos - 1], key})
 
-      /* let isNextUserChar = val[pos + 1]
-
-      if (typeof isNextUserChar === 'string') { // make space for current entry
-        val = val.slice(0, pos).concat([null]).concat(val.slice(pos))
-      } */
-
-      let offset = 1
-
-      if (prevPrevChar) {
-        if (pos - 2 < 0) {
-          pos++
-          val.unshift(prevPrevChar)
+        if (!res) {
+          if (stack.length) {
+            console.error('Stack trash %s', val)
+          }
         } else {
-          val[pos - 2] = prevPrevChar
+          const {prevChar, curChar, pushStack} = res
+
+          if (prevChar) {
+            if (!pos) { // eslint-disable-line
+              pos++
+              val.unshift(prevChar)
+            } else {
+              val[pos - 1] = prevChar
+            }
+          }
+
+          if (curChar) {
+            val[pos] = curChar
+          }
+
+          if (stack.length && pushStack) {
+            console.error('Pushing stack with existing queue. Mixed behaviour!')
+          }
+
+          if (pushStack) {
+            stack = pushStack.split('')
+          }
+
+          pos++
         }
       }
-      if (prevChar) {
-        if (pos - 1 < 0) {
-          pos++
-          val.unshift(prevChar)
-        } else {
-          val[pos - 1] = prevChar
-        }
-      }
-      val[pos] = curChar || key
-      if (nextChar) {
-        val[pos + 1] = nextChar
-        offset++
-      }
-      debug(val)
 
       $(id).val(val.join(''))
-      $(id).caret(pos + offset)
+      $(id).caret(pos)
     }
   })
 }
@@ -98,10 +99,16 @@ function hookField (id, allowKey) {
 hookField('time', (val, pos, lastKey, key) => { // eslint-disable-line complexity
   /* Time */
 
+  // rule of thumb: push to stack if the field is after the current
+
   switch (pos) {
     // 1
     case 0: { // first key must be a number
-      return {allow: key.match(/^[0-9]$/)}
+      if (key.match(/^[0-9]$/)) {
+        return {curChar: key}
+      } else {
+        return false
+      }
     }
     // 12
     case 1: { // second key must be (together with the first) a number smaller than 23
@@ -111,48 +118,52 @@ hookField('time', (val, pos, lastKey, key) => { // eslint-disable-line complexit
         if (total === 24) {
           return {allow: true, prevChar: '0', curChar: '0', nextChar: ':'}
         } else if (total > 24) {
-          return {allow: true, prevPrevChar: '0', prevChar: lastKey, curChar: ':', nextChar: key}
+          return {prevChar: '0', curChar: lastKey, pushStack: ':' + key}
         } else {
-          return {allow: true, nextChar: ':'}
+          return {curChar: key, pushStack: ':'}
         }
-      } else if (key === ':' && key === ' ') { // FEATURE: you can press space to set the middle sepeartor
-        return {allow: true, prevChar: '0', curChar: lastKey, nextChar: ':'}
+      } else if (key === ':' || key === ' ') {
+        return {prevChar: '0', curChar: lastKey, pushStack: ':'}
       } else {
-        return {allow: false}
+        return false
       }
     }
     // 12:
     case 2: {
-      return {allow: key === ':'}
+      return key === ':' ? {curChar: key} : false
     }
     // 12:3
     case 3: { // this can either be a 0-5 for 59 for ex, or 6-9 for 09
       if (key.match(/^[0-5]$/)) {
-        return {allow: true}
+        return {curChar: key}
       } else if (key.match(/^[6-9]$/)) {
-        return {allow: true, curChar: '0', nextChar: key}
+        return {curChar: '0', pushStack: key}
       } else {
-        return {allow: false}
+        return false
       }
     }
     // 12:33
     case 4: { // this can be any number
       if (key.match(/^[0-9]$/)) {
-        return {allow: true, nextChar: ' '}
+        return {curChar: key, pushStack: ' '}
+      } else {
+        return false
       }
-      return {allow: false}
     }
     case 5: { // this can be a space
-      return {allow: key === ' '}
+      return key === ' ' ? {curChar: key, pushStack: parseInt(val.slice(0, 2).join(''), 10) > 12 ? 'p' : ''} : false
     }
     case 6: { // this can be an a or p
-      if (key.match(/^[ap]$/i)) {
-        return {allow: true, curChar: key.toLowerCase(), nextChar: 'm'}
+      const hour = parseInt(val.slice(0, 2).join(''), 10)
+      key = key.toLowerCase()
+      if ((hour <= 12 && key.match(/^[ap]$/)) || (hour > 12 && key === 'p')) {
+        return {curChar: key, pushStack: 'm'}
+      } else {
+        return false
       }
-      return {allow: false}
     }
     case 7: { // this can be an m
-      return {allow: key.match(/^[m]$/i), curChar: key.toLowerCase()}
+      return key.toLowerCase() === 'm' ? {curChar: 'm'} : false
     }
     default: { // out of bounds
       return {allow: undefined}
