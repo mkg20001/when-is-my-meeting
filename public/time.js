@@ -8,6 +8,19 @@ const debug = console.log.bind(console)
 function hookField (id, allowKey) {
   id = `#${id}`
 
+  $(id).on('keydown', (e) => {
+    let val = $(id).val().split('')
+
+    const pos = $(id).caret()
+
+    if (pos && e.originalEvent.code === 'Backspace') {
+      e.preventDefault()
+      val[pos - 1] = '█' // remove current value
+      $(id).val(val.join('')) // set value
+      $(id).caret(pos - 1) // move caret one back
+    }
+  })
+
   $(id).on('keypress', (e) => {
     let val = $(id).val()
 
@@ -39,11 +52,11 @@ function hookField (id, allowKey) {
       val[pos] = curChar || key
       if (nextChar) {
         val[pos + 1] = nextChar
-        $(id).caret(pos + 1)
       }
       debug(val)
 
       $(id).val(val.join(''))
+      $(id).caret(pos + (nextChar ? 2 : 1))
     }
   })
 }
