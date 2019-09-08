@@ -4,7 +4,7 @@
 const Fuse = require('fuse.js')
 // https://momentjs.com/
 
-const list = [
+const list = [ // TODO: find source for data formatted like this
   {
     country: 'Germany',
     countryLocal: 'Deutschland',
@@ -25,11 +25,13 @@ const options = {
     'country',
     'countryLocal',
     'capital',
-    'timezone'
+    'timezone',
+    'timezoneLong'
   ]
 }
 
 const search = new Fuse(list, options)
+
 var result = search.search('ger')
 
 console.log(result)

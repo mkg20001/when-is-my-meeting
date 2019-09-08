@@ -13,11 +13,20 @@ function hookField (id, allowKey) {
 
     const pos = $(id).caret()
 
+    debug(e)
+
     if (pos && e.originalEvent.code === 'Backspace') {
       e.preventDefault()
-      val[pos - 1] = '█' // remove current value
+      val[pos - 1] = '░' // remove current value
       $(id).val(val.join('')) // set value
       $(id).caret(pos - 1) // move caret one back
+    }
+
+    if (typeof val[pos + 1] === 'string' && e.originalEvent.code === 'Delete') { // if next thing is string and user presses delete, delete next char
+      e.preventDefault()
+      val[pos] = '░' // remove current value
+      $(id).val(val.join('')) // set value
+      $(id).caret(pos + 1) // move caret one back
     }
   })
 
